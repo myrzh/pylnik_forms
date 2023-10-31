@@ -1,6 +1,7 @@
 from zipfile import ZipFile
 from csv import DictReader
 from os import mkdir
+from shutil import rmtree
 
 from docx import Document
 from docx.shared import Pt
@@ -81,6 +82,7 @@ def main():
     except FileExistsError:
         pass
     document.save(f"documents/Практика {practice_number}.docx")
+    rmtree("responses_extracted", ignore_errors=True)
 
 
 if __name__ == "__main__":
