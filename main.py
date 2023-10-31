@@ -61,8 +61,7 @@ def write_response(document: Document, response: dict, is_last: bool) -> Documen
 
 
 def main():
-    # practice_number = input("Enter practice number: ")
-    practice_number = "TEMPLATE"
+    practice_number = input("Enter practice number: ")
 
     extract_csv(practice_number)
 
