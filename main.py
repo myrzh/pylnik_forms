@@ -1,15 +1,17 @@
-import zipfile
-import csv
+from zipfile import ZipFile
+from csv import DictReader
+from os import mkdir
 
 from docx import Document
 from docx.shared import Pt
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 
 GROUP_NUMBER = "5151003/30002"
 
 
 def extract_csv(practice_number: str) -> None:
-    with zipfile.ZipFile(f"ORG_{practice_number}.csv.zip", "r") as zip_ref:
+    with ZipFile(f"ORG_{practice_number}.csv.zip", "r") as zip_ref:
         zip_ref.extractall("responses_extracted")
 
 
@@ -34,13 +36,17 @@ def init_document(practice_number: str) -> Document:
     font.name = "Times New Roman"
     font.size = Pt(12)
 
-    document.add_paragraph(f"Практика {practice_number}, группа {GROUP_NUMBER}\n")
+    header_paragraph = document.add_paragraph(
+        f"Практика {practice_number}, группа {GROUP_NUMBER}\n"
+    )
+    header_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     return document
 
 
-def write_response(document: Document, response: dict) -> Document:
-    document.add_paragraph(response["Имя"])
+def write_response(document: Document, response: dict, is_last: bool) -> Document:
+    name_paragraph = document.add_paragraph(response["Имя"])
+    name_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     for index in range(2, 4):
         document.add_paragraph(
@@ -48,7 +54,8 @@ def write_response(document: Document, response: dict) -> Document:
         )
         document.add_paragraph(list(response.values())[index])
 
-    document.add_page_break()
+    if not is_last:
+        document.add_page_break()
 
     return document
 
@@ -57,18 +64,24 @@ def main():
     # practice_number = input("Enter practice number: ")
     practice_number = "TEMPLATE"
 
+    extract_csv(practice_number)
+
     with open(
         f"responses_extracted/ORG_{practice_number}.csv", encoding="utf8"
     ) as csvfile:
-        reader = csv.DictReader(csvfile, delimiter=",", quotechar='"')
+        reader = DictReader(csvfile, delimiter=",", quotechar='"')
         responses = actualize_records(list(reader))
 
     document = init_document(practice_number)
 
-    for response in responses:
-        write_response(document, response)
+    for index, response in enumerate(responses):
+        write_response(document, response, index == len(responses) - 1)
 
-    document.save(f"Практика {practice_number}.docx")
+    try:
+        mkdir("documents")
+    except FileExistsError:
+        pass
+    document.save(f"documents/Практика {practice_number}.docx")
 
 
 if __name__ == "__main__":
