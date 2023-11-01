@@ -71,6 +71,7 @@ def main():
     ) as csvfile:
         reader = DictReader(csvfile, delimiter=",", quotechar='"')
         responses = actualize_records(list(reader))
+        responses.sort(key=lambda resp: resp["Имя"].lower())
 
     document = init_document(practice_number)
 
