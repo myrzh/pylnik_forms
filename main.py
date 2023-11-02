@@ -32,15 +32,17 @@ def actualize_records(records: list) -> list:
 def init_document(practice_number: str) -> Document:
     document = Document()
 
-    style = document.styles["Normal"]
-    font = style.font
-    font.name = "Times New Roman"
-    font.size = Pt(12)
+    overall_style = document.styles["Normal"]
+    overall_font = overall_style.font
+    overall_font.name = "Times New Roman"
+    overall_font.size = Pt(12)
 
     header_paragraph = document.add_paragraph(
         f"Практика {practice_number}, группа {GROUP_NUMBER}\n"
     )
     header_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    document.add_page_break()
 
     return document
 
@@ -48,6 +50,7 @@ def init_document(practice_number: str) -> Document:
 def write_response(document: Document, response: dict, is_last: bool) -> Document:
     name_paragraph = document.add_paragraph(response["Имя"])
     name_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    name_paragraph.style = document.styles["Heading 1"]
 
     for index in range(2, 4):
         document.add_paragraph(
